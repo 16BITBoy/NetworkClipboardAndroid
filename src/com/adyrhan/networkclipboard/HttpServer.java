@@ -154,6 +154,9 @@ public class HttpServer {
         private static final String TAG = "HttpClipboardHandler";
         private NewDataListener listener;
 		public HttpClipboardHandler(NewDataListener listener) {
+			if(listener == null) {
+				throw new NullPointerException("NewDataListener cannot be null");
+			}
 			this.listener = listener;
 		}
 
