@@ -40,6 +40,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
@@ -90,17 +92,57 @@ import android.util.Log;
 
 
 public class HttpServer {
+	private static final String TAG = "HttpServer";
+	private AtomicBoolean mIsRunning;
+	private RequestListenerThread mThread;
+	private ServerSocket mSocket;
+	
+	public HttpServer() {
+		mIsRunning = new AtomicBoolean(false);
+	}
+	
+	public boolean isRunning() {
+		return mIsRunning.get();
+	}
 	
 	public void startServer(int port, NewDataListener listener) throws PortIOError {
-		Thread thread;
 		try {
-			thread = new RequestListenerThread(port, listener);
-			thread.setDaemon(false);
-			thread.start();
+			if(!mIsRunning.get()) {
+				mThread = new RequestListenerThread(port, listener, mIsRunning);
+				mSocket = mThread.serversocket;
+				mThread.setDaemon(false);
+				mThread.start();
+				
+				while(!mIsRunning.get()) {
+					Thread.sleep(10);
+				}
+				
+			}
 		} catch (IOException e) {
 			throw new PortIOError(port);
+		} catch (InterruptedException e) {
+			Log.e(TAG, null, e);
 		}
 		
+	}
+	
+	public void stopServer() {
+		try {
+			Log.d(TAG, "HttpServer.stopServer() called! mIsRunning value is "+ Boolean.toString(mIsRunning.get()));
+			if(mIsRunning.get() && mThread != null) {
+				Log.d(TAG, "Trying to stop Http server...");
+				mThread.interrupt();
+				mSocket.close();	
+				while(mIsRunning.get()) {
+					Thread.sleep(10);
+				}
+			}
+			
+		} catch (IOException e) {
+			Log.e(TAG, "Error while trying to close socket");
+		} catch (InterruptedException e) {
+			Log.e(TAG, null, e);
+		}
 	}
     
 	public interface NewDataListener {
@@ -144,11 +186,13 @@ public class HttpServer {
     static class RequestListenerThread extends Thread {
 
         private static final String TAG = "RequestListenerThread";
-		private final ServerSocket serversocket;
+		public final ServerSocket serversocket;
         private final HttpParams params; 
         private final HttpService httpService;
+        private final AtomicBoolean runningStatus;
         
-        public RequestListenerThread(int port, NewDataListener listener) throws IOException  {
+        
+        public RequestListenerThread(int port, NewDataListener listener, AtomicBoolean runningStatus) throws IOException  {
             this.serversocket = new ServerSocket(port);
             this.params = new BasicHttpParams();
             this.params
@@ -176,10 +220,13 @@ public class HttpServer {
                     new DefaultHttpResponseFactory());
             this.httpService.setParams(this.params);
             this.httpService.setHandlerResolver(registry);
+            
+            this.runningStatus = runningStatus;
         }
         
         public void run() {
             Log.d(TAG, "Listening on port " + this.serversocket.getLocalPort());
+            runningStatus.set(true);
             while (!Thread.interrupted()) {
                 try {
                     // Set up HTTP connection
@@ -192,14 +239,15 @@ public class HttpServer {
                     Thread t = new WorkerThread(this.httpService, conn);
                     t.setDaemon(true);
                     t.start();
-                } catch (InterruptedIOException ex) {
-                    break;
-                } catch (IOException e) {
-                    Log.e(TAG, "I/O error initialising connection thread: " 
+                }  catch (IOException e) {
+                    Log.w(TAG, "I/O error initialising connection thread: " 
                             + e.getMessage());
                     break;
                 }
             }
+            
+            runningStatus.set(false);
+            
         }
     }
     
@@ -224,7 +272,7 @@ public class HttpServer {
                     this.httpservice.handleRequest(this.conn, context);
                 }
             } catch (ConnectionClosedException ex) {
-                Log.e(TAG, "Client closed connection");
+                Log.w(TAG, "Client closed connection");
             } catch (IOException ex) {
                 Log.e(TAG, "I/O error: " + ex.getMessage());
             } catch (HttpException ex) {

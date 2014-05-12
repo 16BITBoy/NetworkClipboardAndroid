@@ -20,9 +20,9 @@ import android.text.ClipboardManager;
 import android.test.ServiceTestCase;
 
 @SuppressWarnings("deprecation")
-public class ClipboardTest extends ServiceTestCase<NetworkClipboardService> {
+public class ClipboardServiceTest extends ServiceTestCase<NetworkClipboardService> {
 	private static final String SERVER_ADDRESS = "http://127.0.0.1:40400";
-	public ClipboardTest() {
+	public ClipboardServiceTest() {
 		super(NetworkClipboardService.class);
 	}
 

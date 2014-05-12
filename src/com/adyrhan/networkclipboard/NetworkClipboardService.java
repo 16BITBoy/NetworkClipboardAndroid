@@ -23,6 +23,7 @@ import android.util.Log;
 
 public class NetworkClipboardService extends Service implements NewDataListener{
 
+	private static final int LISTENING_PORT = 40400;
 	private static final String TAG = "NetworkClipboardService";
 	public static boolean isRunning;
 	private HttpServer httpServer;
@@ -35,10 +36,10 @@ public class NetworkClipboardService extends Service implements NewDataListener{
 	
 	@Override
 	public void onCreate() {
-		super.onCreate();
-		httpServer = new HttpServer();
 		try {
-			httpServer.startServer(40400, this);
+			super.onCreate();
+			httpServer = new HttpServer();
+			httpServer.startServer(LISTENING_PORT, this);
 			NetworkClipboardService.isRunning = true;
 		} catch (PortIOError e) {
 			NetworkClipboardService.isRunning = false;
@@ -55,6 +56,8 @@ public class NetworkClipboardService extends Service implements NewDataListener{
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		Log.d(TAG, "Service is stopping...");
+		httpServer.stopServer();
 		NetworkClipboardService.isRunning = false;
 	}
 

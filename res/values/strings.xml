@@ -2,4 +2,12 @@
 
     <string name="app_name">NetworkClipboard</string>
 
+    <string name="service_enable_disable_">"Service enable/disable: "</string>
+
+    <string name="off">Off</string>
+
+    <string name="advice_text">Here you can control the status of the network clipboard service. If you aren\'t using it, it\'s better to have it disabled.</string>
+
+    <string name="service_control_activity_name">Network Clipboard Service Control</string>
+
 </resources>
