@@ -1,7 +1,4 @@
 /*
- * $HeadURL: https://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0.1/httpcore/src/examples/org/apache/http/examples/ElementalHttpServer.java $
- * $Revision: 744516 $
- * $Date: 2009-02-14 17:38:14 +0100 (Sat, 14 Feb 2009) $
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -31,32 +28,20 @@
 
 package com.adyrhan.networkclipboard;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URLDecoder;
 import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
-import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.entity.ContentProducer;
-import org.apache.http.entity.EntityTemplate;
-import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
@@ -74,25 +59,22 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.http.util.EntityUtils;
 
 import com.adyrsoft.framework.android.InputStreamUtils;
 
 import android.util.Log;
 
 /**
- * Basic, yet fully functional and spec compliant, HTTP/1.1 file server.
- * <p>
- * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
- * It is NOT intended to demonstrate the most efficient way of building an HTTP file server. 
+ * This HTTP/1.1 compliant server is a slightly improved version of the one available here,
+ * https://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0.1/httpcore/src/examples/org/apache/http/examples/ElementalHttpServer.java
+ * modified to receive remote clipboard data, and to log errors the Android way.
  * 
- *
- * @version $Revision: 744516 $
+ * HttpServer is the main object here and replaces the class containing the main static method.
  */
 
 
 public class HttpServer {
-	private static final String TAG = "HttpServer";
+	public static final String TAG = "HttpServer";
 	private AtomicBoolean mIsRunning;
 	private RequestListenerThread mThread;
 	private ServerSocket mSocket;
@@ -151,7 +133,7 @@ public class HttpServer {
 	
     static class HttpClipboardHandler implements HttpRequestHandler  {
         
-        private static final String TAG = "HttpClipboardHandler";
+        public static final String TAG = "HttpClipboardHandler";
         private NewDataListener listener;
 		public HttpClipboardHandler(NewDataListener listener) {
 			if(listener == null) {
@@ -169,7 +151,6 @@ public class HttpServer {
             if (!method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
-            String target = request.getRequestLine().getUri();
             
             if (request instanceof HttpEntityEnclosingRequest) {
                 HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
@@ -255,7 +236,7 @@ public class HttpServer {
     }
     
     static class WorkerThread extends Thread {
-    	private static final String TAG = "WorkerThread";
+    	public static final String TAG = "WorkerThread";
         private final HttpService httpservice;
         private final HttpServerConnection conn;
         

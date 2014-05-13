@@ -1,16 +1,8 @@
 package com.adyrhan.networkclipboard;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpService;
 
 import com.adyrhan.networkclipboard.HttpServer.NewDataListener;
 
@@ -21,9 +13,10 @@ import android.os.IBinder;
 import android.text.ClipboardManager;
 import android.util.Log;
 
+@SuppressWarnings("deprecation")
 public class NetworkClipboardService extends Service implements NewDataListener{
 
-	private static final int LISTENING_PORT = 40400;
+	public static final int LISTENING_PORT = 40400;
 	private static final String TAG = "NetworkClipboardService";
 	public static boolean isRunning;
 	private HttpServer httpServer;

@@ -10,4 +10,10 @@
 
     <string name="service_control_activity_name">Network Clipboard Service Control</string>
 
+    <string name="note_ip">"Note this ip address and port number and use it to configure the PC client: "</string>
+
+    <string name="address">Address</string>
+
+    <string name="port">Port</string>
+
 </resources>
