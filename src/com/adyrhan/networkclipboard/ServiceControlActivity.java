@@ -1,18 +1,18 @@
 package com.adyrhan.networkclipboard;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-public class ServiceControlActivity extends Activity {
+public class ServiceControlActivity extends ActionBarActivity {
 	private static final String TAG = "ServiceControlActivity";
 	public Intent mServiceIntent;
 	public ToggleButton mToggle;
